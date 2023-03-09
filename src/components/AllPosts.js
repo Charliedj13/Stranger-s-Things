@@ -10,7 +10,7 @@ const AllPosts = (props) => {
     const [Description, setDescription] = useState("");
     const [Price, setPrice] = useState("");
     const [Location, setLocation] = useState("");
-    const [willDeliver, setwillDeliver] = useState("");
+    const [willDeliver, setwillDeliver] = useState(false);
 
     
 
@@ -32,11 +32,11 @@ const AllPosts = (props) => {
     async function newPostRequest (event) {
         event.preventDefault();
         try {
-            const response = await fetch (`https://strangers-things.herokuapp.com/api/2301-FTB-ET-WEB-FT/posts`, {
+            const response = await fetch (`https://strangers-things.herokuapp.com/api/2301-ftb-mt-web-ft/posts`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                     post: {
@@ -85,11 +85,17 @@ const AllPosts = (props) => {
                 onChange={(event) => setLocation(event.target.value)}
                 />
                 <input 
-                type="text"
-                placeholder="Deliver?"
+                id="checkbox"
+                type="checkbox"
+                placeholder="Can I Deliver?"
                 value={willDeliver}
-                onChange={(event) => setwillDeliver(event.target.value)}
-                />
+                onChange={(event) => setwillDeliver(!willDeliver)}
+                /> 
+                <label
+                htmlFor="checkbox"
+                > Can I deliver?
+                </label>
+            
                 <textarea 
                 type="text"
                 rows="3"

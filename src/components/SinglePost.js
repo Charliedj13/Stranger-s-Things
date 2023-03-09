@@ -29,6 +29,7 @@ const SinglePost = (props) => {
         filteredPost.length ? filteredPost[0].willDeliver : ""
     )
     
+    const navigate = useNavigate()
 
     
 //Button for updating
@@ -49,7 +50,7 @@ async function sendPutRequestForUpdateFunc(event) {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify({
             title: newProductName,
@@ -63,7 +64,7 @@ async function sendPutRequestForUpdateFunc(event) {
         const translatedData = await response.json();
 
         let filteredPostArray = props.posts.filter((SinglePost) => {
-            if(SinglePost._id != event.target.value) {
+            if(SinglePost._id != _id) {
                 return SinglePost
             }
         })
@@ -72,23 +73,58 @@ async function sendPutRequestForUpdateFunc(event) {
         console.log(error)
     }
 }
+//Async function for messaging
+async function sendMessageReq(event) {
+    event.preventDefault();
+    try {
+        console.log(event.target[0])
+        const response = await fetch(`https://strangers-things.herokuapp.com/api/2301-ftb-mt-web-ft/posts/${_id}/messages`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                message: {
+                    content: (event.target[0].value)
+                }
+            })
+            
+            
+        })
+        navigate("/allposts")
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 //Async function for deleting post
 async function deleteSpecificPost(event) {
     event.preventDefault();
     try {
-        const response = await fetch(`https://strangers-things.herokuapp.com/api/2301-ftb-mt-web-ft/posts/${event.target.value}`, {
+        const response = await fetch(`https://strangers-things.herokuapp.com/api/2301-ftb-mt-web-ft/posts/${_id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         });
         const result = await response.json()
+        let filteredPostArrayDelete = props.posts.filter((singlePost) => {
+            if(singlePost._id != _id ) {
+                return singlePost
+            }
+        })
+        setPosts(filteredPostArrayDelete)
+        
+        navigate("/allposts")
+        
         console.log(result)
     } catch (error) {
         console.log(error)
     }
 }
+
     
 
 return (
@@ -114,7 +150,8 @@ return (
                 </section>
                 ):""
             }
-            {filteredPost.isAuthor ? <div><button onClick={toggleEditFormFunc}>Toggle Edit Form</button>
+            
+            {filteredPost[0].isAuthor ? <div><button onClick={toggleEditFormFunc}>Toggle Edit Form</button>
             {
               editFormStatus ? (
               <form onSubmit={sendPutRequestForUpdateFunc}>
@@ -138,7 +175,7 @@ return (
             </div>:<p>{""}</p>}
 
             {
-            filteredPost.isAuthor ? (
+            filteredPost[0].isAuthor ? (
             <button 
             onClick={deleteSpecificPost} 
             value={SinglePost._id}
@@ -147,21 +184,32 @@ return (
             }
 
             {
-                filteredPost.isAuthor ? (""
+            filteredPost[0].isAuthor ? (""
                 ):
             <button id="single"onClick={toggleMessageForm}>Send Message</button>
         }
         {
                 sendMessage ? (
+                    <div>
+                        <form onSubmit={sendMessageReq}>
                     <textarea 
                     type="text"
                     row="3"
                     cols="100"
-                    placeholder="Send Message Here...">
+                    placeholder="Send Message Here..."
+                    >
                     </textarea>
+                    <input type="submit"></input>
+                    </form>
+                    </div>
+
                     
+
+                    
+                          
                 ):""
             }
+            
        
         </div>
 
